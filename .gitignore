@@ -1,0 +1,3 @@
+# Ignore generated keys
+/key.pub.txt
+/key.txt
