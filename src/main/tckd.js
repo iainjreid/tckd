@@ -4,9 +4,9 @@
  * The first 5 bit primes.
  */
 const primes = [
-  0b0000010, 0b0000011, 0b00000101, 0b00000111,
-  0b0001011, 0b0001101, 0b00010001, 0b00010011,
-  0b0010111, 0b0011101, 0b00011111,
+  0b00000010, 0b00000011, 0b00000101, 0b00000111,
+  0b00001011, 0b00001101, 0b00010001, 0b00010011,
+  0b00010111, 0b00011101, 0b00011111,
 ];
 
 function generateKeyPair() {
@@ -17,17 +17,26 @@ function generateKeyPair() {
 }
 
 function hashValue(key) {
-  const hash = key.split("").map(_ => parseInt(_, 32));
+  if (key.length % 8) {
+    key += Array.from({ length: 8 - key.length % 8 }, () => 0).join("");
+  }
 
-  for (let i1 = 0; i1 < 8; i1++) {
-    for (let i2 = 0; i2 < 8; i2++) {
-      let x = primes[i2];
+  let chunk;
+  let hash = Array.from({ length: 8 }, () => 0);
 
-      for (let i3 = 0; i3 < (i2 ^ i1) % 3; i3++) {
-        x ^= rightRotate(x, x) ^ primes[i3 % 11] ^ leftRotate(x, x);
+  const target = key.split("").map(_ => parseInt(_, 32));
+
+  while ((chunk = target.splice(0, 8)).length) {
+    for (let i1 = 0; i1 < 8; i1++) {
+      for (let i2 = 0; i2 < 8; i2++) {
+        let x = primes[i2];
+
+        for (let i3 = 0; i3 < (i2 ^ i1) % 3; i3++) {
+          x ^= rightRotate(chunk[i2], x) ^ primes[i3 % 11] ^ leftRotate(chunk[i2], x);
+        }
+
+        hash[i1] ^= x;
       }
-
-      hash[i1] ^= x;
     }
   }
 
@@ -43,7 +52,7 @@ function rightRotate(value, count) {
 }
 
 function randomKey() {
-  return parseInt(randomBits(40).join(""), 2).toString(32);
+  return parseInt(randomBits(40).join(""), 2).toString(32).padStart(8, "0")
 }
 
 function randomKeys(count) {
@@ -57,19 +66,6 @@ function randomBit() {
 function randomBits(count) {
   return Array.from({ length: count }, randomBit);
 }
-
-const privateKey = readKey("./key.txt");
-const publicKey = readKey("./key.pub.txt");
-
-const signature = hashValue("facebook").split("").map((char, i) => {
-  return privateKey[parseInt(char, 32)][i];
-});
-
-const verified = hashValue("facebook").split("").map((char, i) => {
-  return hashValue(publicKey[parseInt(char, 32)][i]);
-});
-
-console.log(signature, verified)
 
 function readKey(path) {
   const key = require("fs").readFileSync(path, "utf8")
@@ -85,5 +81,6 @@ module.exports = {
   randomKey,
   randomKeys,
   randomBit,
-  randomBits
+  randomBits,
+  readKey
 }
