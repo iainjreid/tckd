@@ -4,7 +4,9 @@
   "description": "",
   "main": "src/main/tckd.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test:collisions": "node src/test/key-collisions-test.js",
+    "test:generation": "node src/test/key-generation-test.js",
+    "test:validation": "node src/test/signature-validation.js"
   },
   "keywords": [],
   "author": "",
