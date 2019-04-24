@@ -1,6 +1,6 @@
 {
   "name": "tckd",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "",
   "main": "src/main/tckd.js",
   "scripts": {
