@@ -1,12 +1,12 @@
 "use strict";
 
 /**
- * The first 5 bit primes.
+ * The first 11 primes, representable using 5 bits.
  */
 const primes = [
-  0b00000010, 0b00000011, 0b00000101, 0b00000111,
-  0b00001011, 0b00001101, 0b00010001, 0b00010011,
-  0b00010111, 0b00011101, 0b00011111,
+  0b00010, 0b00011, 0b00101, 0b00111,
+  0b01011, 0b01101, 0b10001, 0b10011,
+  0b10111, 0b11101, 0b11111,
 ];
 
 function generateKeyPair() {
