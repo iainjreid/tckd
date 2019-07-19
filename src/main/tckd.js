@@ -10,29 +10,34 @@ const primes = [
 ];
 
 function generateKeyPair() {
-  let publicKey = "";
-  let privateKey = "";
+  let privateKey = randomKeys(16, 32);
+  let publicKey = privateKey.map((key) => key.split("").map((char) => hashValue(char)).join(""));
 
   return { publicKey, privateKey };
 }
 
-function hashValue(key) {
-  if (key.length % 8) {
-    key += Array.from({ length: 8 - key.length % 8 }, () => 0).join("");
-  }
+function hashValue(key, length = key.length) {
+  let chunk, primeIndex;
+  let hash = Array.from({ length }, () => 0);
 
-  let chunk;
-  let hash = Array.from({ length: 8 }, () => 0);
+  const target = key.padStart(8, "0").split("").map(_ => parseInt(_, 32));
 
-  const target = key.split("").map(_ => parseInt(_, 32));
-
+  /**
+   * Each chunk contains 8 values, each made up of 5 bits.
+   */
   while ((chunk = target.splice(0, 8)).length) {
-    for (let i1 = 0; i1 < 8; i1++) {
-      for (let i2 = 0; i2 < 8; i2++) {
-        let x = primes[i2];
+    for (let i1 = 0; i1 < hash.length; i1++) {
+      for (let i2 = 0; i2 < chunk.length; i2++) {
+        let x = primes[primeIndex++ % primes.length];
 
-        for (let i3 = 0; i3 < (i2 ^ i1) % 3; i3++) {
-          x ^= rightRotate(chunk[i2], x) ^ primes[i3 % 11] ^ leftRotate(chunk[i2], x);
+        x ^= rightRotate(chunk[i2], x);
+        x ^= leftRotate(chunk[i2], x);
+
+        for (let i3 = 0; i3 < (i2 ^ i1); i3++) {
+          x ^= rightRotate(chunk[i2], x);
+          x ^= leftRotate(chunk[i2], x);
+
+          x ^= primes[i3 % 11];
         }
 
         hash[i1] ^= x;
@@ -51,8 +56,14 @@ function rightRotate(value, count) {
   return (value >>> (count % 5)) | (value << (5 - count)) & 31;
 }
 
-function randomKey() {
-  return parseInt(randomBits(40).join(""), 2).toString(32).padStart(8, "0")
+function randomKey(length = 8) {
+  let key = "";
+
+  while (key.length < length) {
+    key += parseInt(randomBits(5).join(""), 2).toString(32);
+  }
+
+  return key;
 }
 
 function randomKeys(count) {
