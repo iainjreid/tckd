@@ -66,8 +66,8 @@ function randomKey(length = 8) {
   return key;
 }
 
-function randomKeys(count) {
-  return Array.from({ length: count }, randomKey);
+function randomKeys(count, length) {
+  return Array.from({ length: count }, () => randomKey(length));
 }
 
 function randomBit() {
