@@ -79,9 +79,8 @@ function randomBits(count) {
 }
 
 function readKey(path) {
-  const key = require("fs").readFileSync(path, "utf8")
-
-  return key.split("\n").map(_ => _.split(" "))
+  const key = require("fs").readFileSync(path, "utf8");
+  return key.split("\n").map(_ => _.split(" "));
 }
 
 module.exports = {
