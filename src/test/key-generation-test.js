@@ -1,12 +1,8 @@
 "use strict";
 
-const { randomKeys, hashValue } = require("../main/tckd");
+const { generateKeyPair } = require("../main/tckd");
 
-const key = [];
+const { publicKey, privateKey } = generateKeyPair();
 
-for (let i = 0; i < 32; i++) {
-  key.push(randomKeys(8));
-}
-
-require("fs").writeFileSync("./key.txt", key.map(_ => _.join(" ")).join("\n"), "utf8");
-require("fs").writeFileSync("./key.pub.txt", key.map(_ => _.map(hashValue).join(" ")).join("\n"), "utf8");
+require("fs").writeFileSync("./key.txt", privateKey.join("\n"), "utf8");
+require("fs").writeFileSync("./key.pub.txt", publicKey.join("\n"), "utf8");
