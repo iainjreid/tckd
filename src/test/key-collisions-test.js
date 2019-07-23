@@ -1,20 +1,21 @@
-const { randomKey, hashKey } = require("../main/tckd");
+const { randomKey, hashValue } = require("../main/tckd");
 
-const loggedKeys = new Set();
-const loggedHashes = new Set();
+const results = [];
 
-while (true) {
-  const key = randomKey();
-  const hash = hashKey(key);
+while (results.length < 1000) {
+  const hashes = new Set();
 
-  if (loggedKeys.has(key)) {
-    throw Error(`Collision in keys at: ${loggedKeys.size}`);
+  while (true) {
+    const hash = hashValue(randomKey(4));
+
+    if (hashes.has(hash)) {
+      results.push(hashes.size);
+      console.log("Collision after: %s", hashes.size)
+      break;
+    } else {
+      hashes.add(hash);
+    }
   }
-
-  if (loggedHashes.has(hash)) {
-    throw Error(`Collision in hashes at: ${loggedHashes.size}`);
-  }
-
-  loggedKeys.add(key);
-  loggedHashes.add(hash);
 }
+
+console.log("Average attempts before collision: %s", results.reduce((a, b) => a + b, 0)/ results.length);
