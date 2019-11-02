@@ -6,11 +6,11 @@ while (results.length < 1000) {
   const hashes = new Set();
 
   while (true) {
-    const hash = hashValue(randomKey(4));
+    const hash = hashValue(randomKey(32), 4);
 
     if (hashes.has(hash)) {
       results.push(hashes.size);
-      console.log("Collision after: %s", hashes.size)
+      console.log("Collision after: %s (%s)", hashes.size, hash)
       break;
     } else {
       hashes.add(hash);

@@ -1,14 +1,17 @@
-const { readKey, hashValue } = require("../main/tckd");
+const { hashValue, generateKeyPair } = require("../main/tckd");
 
-const privateKey = readKey("./key.txt");
-const publicKey = readKey("./key.pub.txt");
+// const { publicKey, privateKey } = generateKeyPair(8);
 
-const signature = hashValue("facebook").split("").map((char, i) => {
-  return hashValue(privateKey[parseInt(char, 32)][i]);
-});
+// const signature = hashValue("facebook", 8).split("").map((char, i) => {
+//   return privateKey[parseInt(char, 32)][i];
+// });
 
-const verified = hashValue("facebook").split("").map((char, i) => {
-  return publicKey[parseInt(char, 32)][i];
-});
+// const verified = hashValue("facebook", 8).split("").every((char, i) => {
+//   return hashValue(signature[i]) === publicKey[parseInt(char, 32)][i];
+// });
 
-console.log(hashValue(signature.join("")), hashValue(verified.join("")))
+
+console.log(hashValue("twittertwittersadasdasdasdtwitterasdasdasdasdasdasdaskjdhaksjdhkajshdkaljshdkjashdflkajshdflkajsdhflkjashdlfkjahsldkfjhaslkjdhf", 32));
+console.log(hashValue("swittertwittersadasdasdasdtwitterasdasdasdasdasdasdaskjdhaksjdhkajshdkaljshdkjashdflkajshdflkajsdhflkjashdlfkjahsldkfjhaslkjdhf", 32));
+
+// console.log(signature.join(" "), verified ? "✓" : "✖");

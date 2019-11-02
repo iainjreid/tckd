@@ -1,59 +1,53 @@
 "use strict";
 
-/**
- * The first 11 primes, representable using 5 bits.
- */
-const primes = [
-  0b00010, 0b00011, 0b00101, 0b00111,
-  0b01011, 0b01101, 0b10001, 0b10011,
-  0b10111, 0b11101, 0b11111,
-];
+function generateKeyPair(depth = 4) {
+  const privateKey = [];
+  const publicKey = [];
 
-function generateKeyPair() {
-  let privateKey = randomKeys(16, 32);
-  let publicKey = privateKey.map((key) => key.split("").map((char) => hashValue(char)).join(""));
+  for (let i1 = 0; i1 < 32; i1++) {
+    const privateKeyRow = [];
+    const publicKeyRow = [];
+
+    for (let i2 = 0; i2 < 16; i2++) {
+      const key = randomKey(depth);
+
+      privateKeyRow.push(key);
+      publicKeyRow.push(hashValue(key));
+    }
+
+    privateKey.push(privateKeyRow);
+    publicKey.push(publicKeyRow);
+  }
 
   return { publicKey, privateKey };
 }
 
-function hashValue(key, length = key.length) {
-  let chunk, primeIndex;
-  let hash = Array.from({ length }, () => 0);
-
-  const target = key.padStart(8, "0").split("").map(_ => parseInt(_, 32));
+function hashValue(value, length = 8) {
+  let input = "";
+  let state = 0n;
 
   /**
-   * Each chunk contains 8 values, each made up of 5 bits.
+   * For each character in the value that should be hashed, take the character code, and add it to the input.
    */
-  while ((chunk = target.splice(0, 8)).length) {
-    for (let i1 = 0; i1 < hash.length; i1++) {
-      for (let i2 = 0; i2 < chunk.length; i2++) {
-        let x = primes[primeIndex++ % primes.length];
+  value.split("").forEach((char) => {
+    input += char.charCodeAt(0).toString(2);
+  })
 
-        x ^= rightRotate(chunk[i2], x);
-        x ^= leftRotate(chunk[i2], x);
-
-        for (let i3 = 0; i3 < (i2 ^ i1); i3++) {
-          x ^= rightRotate(chunk[i2], x);
-          x ^= leftRotate(chunk[i2], x);
-
-          x ^= primes[i3 % 11];
-        }
-
-        hash[i1] ^= x;
-      }
-    }
+  /**
+   * The input must be padded until it can be split evenly into blocks of 40 bits (the preconfigured bitrate).
+   */
+  while (input.length % length * 5) {
+    input += "0";
   }
 
-  return hash.map(_ => _.toString(32)).join("");
-}
+  /**
+   * For each chunk of 40 bits found in the input, XOR them into the rolling state.
+   */
+  input.match(RegExp(`.{1,${length * 5}}`, "g")).forEach((chunk) => {
+    state ^= BigInt("0b" + chunk);
+  });
 
-function leftRotate(value, count) {
-  return (value >>> (5 - count)) | (value << (count % 5)) & 31;
-}
-
-function rightRotate(value, count) {
-  return (value >>> (count % 5)) | (value << (5 - count)) & 31;
+  return state.toString(32).padStart(length, "0");
 }
 
 function randomKey(length = 8) {
@@ -74,23 +68,12 @@ function randomBit() {
   return Math.floor(Math.random() * 2);
 }
 
-function randomBits(count) {
-  return Array.from({ length: count }, randomBit);
-}
-
-function readKey(path) {
-  const key = require("fs").readFileSync(path, "utf8");
-  return key.split("\n").map(_ => _.split(" "));
+function randomBits(length) {
+  return Array.from({ length }, (randomBit));
 }
 
 module.exports = {
-  generateKeyPair,
-  hashValue,
-  leftRotate,
-  rightRotate,
-  randomKey,
-  randomKeys,
-  randomBit,
-  randomBits,
-  readKey
-}
+  generateKeyPair, hashValue,
+  randomKey, randomKeys,
+  randomBit, randomBits,
+};
